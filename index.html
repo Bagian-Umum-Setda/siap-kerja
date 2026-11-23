@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<script>
+(function(){var d;try{d=localStorage.getItem('sp_theme')}catch(e){}if(!d)d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.classList.toggle('dark',d=='dark')})();
+function tema(){var x=document.documentElement.classList.toggle('dark');try{localStorage.setItem('sp_theme',x?'dark':'light')}catch(e){}var b=document.getElementById('tm');if(b)b.textContent=x?'\u2600\uFE0F':'\uD83C\uDF19'}
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk - SIAP-KERJA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="css/login.css">
+</head>
+<body class="font-sans text-slate-800">
+<div class="flex h-full min-h-screen">
+  <!-- Panel kiri -->
+  <section id="L" class="hidden md:flex relative flex-[1.55] bg-black overflow-hidden items-center justify-center flex-col">
+    <div class="glow"></div>
+    <span class="sh" style="left:11%;top:21%;width:16px;height:16px;border:0;animation-duration:11s"><b style="position:absolute;inset:7px 0 auto;height:2px;background:rgba(255,255,255,.4);transform:rotate(45deg)"></b><b style="position:absolute;inset:7px 0 auto;height:2px;background:rgba(255,255,255,.4);transform:rotate(-45deg)"></b></span>
+    <span class="sh" style="right:15%;top:21%;width:18px;height:18px;border-radius:50%;animation-duration:8s"></span>
+    <span class="sh" style="left:15%;top:72%;width:18px;height:18px;border-radius:50%;animation-duration:10s;animation-delay:-3s"></span>
+    <span class="sh" style="right:16%;top:78%;width:18px;height:18px;border-radius:3px;animation-duration:12s;animation-delay:-5s"></span>
+    <div id="lb" class="relative z-10 flex flex-col items-center">
+      <img id="lgimg" class="logo hidden" alt="Logo" style="max-width:min(440px,80%);max-height:300px;object-fit:contain"><svg id="lgsvg" class="logo" width="230" height="250" viewBox="0 0 200 220">
+        <g class="ly l1"><polygon points="30,150 100,195 100,217 30,172" fill="#1e4a80"/><polygon points="170,150 100,195 100,217 170,172" fill="#235590"/><polygon points="100,105 170,150 100,195 30,150" fill="#2f6bb5"/></g>
+        <g class="ly l2"><polygon points="30,105 100,150 100,172 30,127" fill="#1d93b3"/><polygon points="170,105 100,150 100,172 170,127" fill="#1fa6c9"/><polygon points="100,60 170,105 100,150 30,105" fill="#29b6d8"/></g>
+        <g class="ly l3"><polygon points="30,60 100,105 100,127 30,82" fill="#d9ae12"/><polygon points="170,60 100,105 100,127 170,82" fill="#e8bf1c"/><polygon points="100,15 170,60 100,105 30,60" fill="#f6d12f"/></g>
+      </svg>
+      <h1 class="font-mont font-extrabold text-white text-3xl mt-6 fu" style="animation-delay:.9s">SIAP-KERJA</h1>
+      <p class="font-mont font-bold text-white text-xl text-center leading-snug mt-1 fu" style="animation-delay:1.05s">Surat Perintah Kerja<br>Elektronik</p>
+      <p class="text-white/80 text-lg mt-3 fu" style="animation-delay:1.2s">BAGIAN UMUM SEKRETARIAT DAERAH</p>
+    </div>
+  </section>
+  <!-- Panel kanan -->
+  <section class="flex-1 min-w-[320px] bg-white flex flex-col items-center justify-center relative px-6 py-10">
+    <button id="tm" type="button" onclick="tema()" title="Mode malam / siang" class="absolute top-4 right-4 w-9 h-9 rounded-full border border-slate-300 grid place-items-center hover:bg-slate-100">🌙</button>
+    <form id="fm" class="w-full max-w-[320px]" onsubmit="return masuk(event)" autocomplete="on">
+      <div class="md:hidden flex items-center gap-2 mb-5"><img id="mlogo" alt="Logo" class="hidden h-12 w-auto max-w-[190px] object-contain"><svg id="msvg" width="34" height="36" viewBox="0 0 200 220"><polygon points="100,15 170,60 100,105 30,60" fill="#f6d12f"/><polygon points="100,60 170,105 100,150 30,105" fill="#29b6d8"/><polygon points="100,105 170,150 100,195 30,150" fill="#2f6bb5"/></svg><b class="font-mont">SIAP-KERJA</b></div>
+      <h2 class="text-lg font-extrabold text-navy fu" style="animation-delay:.1s">SIAP-KERJA</h2>
+      <p class="text-[12px] text-blue-800 mt-1 mb-6 fu" style="animation-delay:.2s">Mohon masukkan informasi akun Anda untuk mulai menggunakan SIAP-KERJA</p>
+
+      <label class="block text-[11px] font-medium text-slate-600 mb-1 fu" style="animation-delay:.3s">Tahun</label>
+      <div class="relative border border-slate-300 rounded-lg mb-4 fu hover:border-blue-500 transition" style="animation-delay:.35s">
+        <div class="flex items-center gap-3 p-2.5">
+          <span class="w-9 h-9 rounded-lg bg-slate-100 grid place-items-center text-slate-500">📅</span>
+          <div><div class="font-bold text-[12px] text-navy" id="tt"></div><div class="text-[10px] text-slate-500 flex items-center gap-1"><i class="w-2 h-2 rounded-sm bg-emerald-500 inline-block"></i>Tahun Anggaran</div></div>
+          <span class="ml-auto border-l border-slate-200 pl-3 text-slate-400">⌄</span>
+        </div>
+        <select id="thn" onchange="tt.textContent='Tahun Anggaran '+this.value" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></select>
+      </div>
+
+      <label class="block text-[11px] font-medium text-slate-600 mb-1 fu" style="animation-delay:.45s">Username</label>
+      <div class="flex items-center border border-slate-300 rounded-lg overflow-hidden mb-4 fu focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-600/20" style="animation-delay:.5s">
+        <span class="px-3 text-slate-400">👤</span>
+        <input id="usr" class="inp flex-1 py-2.5 px-2 text-[12px] outline-none" placeholder="Masukkan username" autocomplete="username" oninput="cek()">
+      </div>
+
+      <label class="block text-[11px] font-medium text-slate-600 mb-1 fu" style="animation-delay:.6s">Kata Sandi</label>
+      <div class="flex items-center border border-slate-300 rounded-lg overflow-hidden fu focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-600/20" style="animation-delay:.65s">
+        <span class="px-3 text-slate-400">🔒</span>
+        <input id="pwd" type="password" class="inp flex-1 py-2.5 px-2 text-[12px] outline-none" placeholder="Masukkan kata sandi" autocomplete="current-password" oninput="cek()">
+        <button type="button" onclick="const p=document.getElementById('pwd');p.type=p.type=='password'?'text':'password';this.textContent=p.type=='password'?'👁':'🙈'" class="inp px-3 py-2 text-slate-500">👁</button>
+      </div>
+
+      <p id="err" class="text-[11px] text-rose-600 text-center min-h-[18px] mt-3"></p>
+      <button id="btn" type="submit" disabled class="w-full rounded-lg py-2.5 text-[12px] font-semibold mt-1">Masuk Ke Sistem</button>
+      <div class="border border-slate-200 rounded p-2 mt-5 text-[11px] text-slate-500 flex items-center gap-2 fu" style="animation-delay:.8s"><i id="dot" class="w-2 h-2 rounded-full bg-emerald-600 inline-block"></i><span id="br"></span></div>
+    </form>
+    <form id="su" class="hidden w-full max-w-[320px]" onsubmit="return setup(event)">
+      <h2 class="text-lg font-extrabold text-navy">Pengaturan Awal</h2>
+      <p class="text-[12px] text-blue-800 mt-1 mb-4">Belum ada akun. Buat akun administrator pertama. Kode setup ada di spreadsheet database (spreadsheet tempat script dipasang), atau jalankan <b>siapkanDatabase</b> di editor Apps Script &rarr; sheet <b>SETUP</b> &rarr; sel A2.</p>
+      <input id="s_kode" placeholder="Kode setup" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-[12px] mb-2 outline-none focus:border-blue-600">
+      <input id="s_nama" placeholder="Nama lengkap" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-[12px] mb-2 outline-none focus:border-blue-600">
+      <select id="s_jab" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-[12px] mb-2 outline-none focus:border-blue-600"><option>PPK</option><option>PPTK</option><option>Bendahara</option><option>Operator</option><option>Administrator</option></select>
+      <input id="s_usr" placeholder="Username" required autocomplete="username" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-[12px] mb-2 outline-none focus:border-blue-600">
+      <input id="s_pw" type="password" placeholder="Kata sandi (min. 8 karakter)" required autocomplete="new-password" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-[12px] mb-2 outline-none focus:border-blue-600">
+      <input id="s_pw2" type="password" placeholder="Ulangi kata sandi" required autocomplete="new-password" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-[12px] mb-2 outline-none focus:border-blue-600">
+      <p id="s_err" class="text-[11px] text-rose-600 text-center min-h-[18px]"></p>
+      <button id="s_btn" class="w-full rounded-lg py-2.5 text-[12px] font-semibold bg-navy text-white">Buat Akun &amp; Masuk</button>
+    </form>
+    <p class="absolute bottom-5 text-[10px] text-slate-400" id="cp"></p>
+  </section>
+</div>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/login.js"></script>
+
+</body>
+</html>
