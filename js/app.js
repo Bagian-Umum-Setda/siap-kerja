@@ -59,6 +59,50 @@ function draw() {
 }
 
 /* ---------- DASHBOARD ---------- */
+/** Kartu Serapan Anggaran: rincian per sub kegiatan dan per rekening belanja. Admin/Pengguna: semua unit; operator: unitnya saja. */
+function serapanBox() {
+  const role = window.SESI && SESI.role, op = OPU[role], ls = (S.ang || []).filter(a => !op || a.unit == op);
+  if (!ls.length) return '';
+  const real = {}, cair = {}; // nilai SPK per kode rekening (dihitung sekali)
+  S.rows.forEach(r => { const k = String(r.kodrek || '').trim(); if (!k) return; const v = ctx(r.id).total; real[k] = (real[k] || 0) + v; if (r.tahap == 'kuitansi') cair[k] = (cair[k] || 0) + v; });
+  const hit = arr => arr.reduce((t, a) => { const f = fcode(a); t.p += +a.pagu || 0; t.r += real[f] || 0; t.c += cair[f] || 0; return t; }, {p: 0, r: 0, c: 0});
+  const pct = (n, p) => p > 0 ? Math.round(n / p * 1000) / 10 : 0;
+  const pf = x => x.toLocaleString('id-ID') + '%';
+  const warna = x => x >= 90 ? 'text-rose-600' : x >= 60 ? 'text-amber-600' : 'text-emerald-600';
+  const bar = (x, w) => `<div class="bar" style="${w ? 'width:' + w + 'px' : ''}"><i style="width:${Math.min(100, x)}%"></i></div>`;
+
+  // satu sub kegiatan: ringkasan (bisa diklik) + tabel rekening belanja
+  const sub = (kode, arr) => {
+    const h = hit(arr), x = pct(h.r, h.p), nm = (arr.find(a => a.subkeg) || {}).subkeg || '';
+    const rek = arr.slice().sort((a, b) => String(a.rek).localeCompare(String(b.rek))).map(a => {
+      const f = fcode(a), p = +a.pagu || 0, r = real[f] || 0, c = cair[f] || 0, y = pct(r, p);
+      return `<tr><td class="font-mono text-[11px] whitespace-nowrap">${e(a.rek || f)}</td><td class="text-xs" style="min-width:200px">${e(a.uraian || '-')}</td>
+        <td class="text-xs text-right whitespace-nowrap">${rp(p)}</td><td class="text-xs text-right whitespace-nowrap">${rp(r)}</td><td class="text-xs text-right whitespace-nowrap">${rp(c)}</td><td class="text-xs text-right whitespace-nowrap">${rp(p - r)}</td>
+        <td><div class="flex items-center gap-2">${bar(y, 70)}<b class="text-[11px] ${warna(y)}">${pf(y)}</b></div></td></tr>`;
+    }).join('');
+    return `<details class="srp border border-slate-200 rounded-lg overflow-hidden">
+      <summary class="px-3 py-2.5"><div class="flex items-start gap-2"><span class="chev text-slate-400 mt-0.5">›</span><div class="flex-1 min-w-0">
+        <div class="flex justify-between items-baseline gap-3 flex-wrap"><div class="min-w-0"><span class="font-mono text-[11px] font-semibold">${e(kode)}</span> <span class="text-xs font-semibold">${e(nm || '(nama sub kegiatan belum diisi)')}</span></div>
+          <div class="text-[11px] text-slate-500 whitespace-nowrap">${rp(h.r)} / ${rp(h.p)} • <b class="${warna(x)}">${pf(x)}</b></div></div>
+        <div class="mt-1.5">${bar(x)}</div>
+        <div class="flex justify-between text-[10px] text-slate-400 mt-1"><span>${arr.length} rekening belanja • Sudah cair ${rp(h.c)}</span><span>Sisa ${rp(h.p - h.r)}</span></div></div></div></summary>
+      <div class="overflow-x-auto px-3 pb-3"><table class="w-full" style="min-width:720px"><thead><tr><th>Kode Rekening</th><th>Uraian Belanja</th><th class="text-right">Pagu</th><th class="text-right">Realisasi</th><th class="text-right">Sudah Cair</th><th class="text-right">Sisa</th><th>Serapan</th></tr></thead><tbody>${rek}</tbody></table></div></details>`;
+  };
+  // kelompokkan per sub kegiatan dalam satu unit
+  const perSub = arr => { const m = {}; arr.forEach(a => { (m[a.sub || '-'] = m[a.sub || '-'] || []).push(a); });
+    return Object.keys(m).sort().map(k => sub(k, m[k])).join(''); };
+  const unitBlok = u => { const arr = ls.filter(a => a.unit == u[0]); if (!arr.length) return '';
+    const h = hit(arr), x = pct(h.r, h.p);
+    return `<div class="mt-4"><div class="flex justify-between items-baseline flex-wrap gap-2 mb-2"><b class="text-sm">${u[1]}</b><span class="text-[11px] text-slate-500">${rp(h.r)} / ${rp(h.p)} • <b class="${warna(x)}">${pf(x)}</b></span></div><div class="space-y-2">${perSub(arr)}</div></div>`; };
+
+  const T = hit(ls), xT = pct(T.r, T.p);
+  return `<div class="bg-white rounded-xl border border-slate-200 p-4 mb-4">
+    <div class="flex justify-between items-start flex-wrap gap-3 mb-3"><div><h3 class="font-bold text-sm">Serapan Anggaran per Sub Kegiatan <span class="ml-1 text-[10px] bg-slate-100 text-slate-500 rounded px-1.5 py-0.5 font-medium">${op ? 'Anggaran ' + e((ANG.find(u => u[0] == op) || [, ''])[1]) : 'Semua Unit'}</span></h3>
+      <p class="text-[11px] text-slate-500">Klik sub kegiatan untuk melihat rincian setiap rekening belanja. Realisasi dihitung dari nilai SPK/SPB/SP.</p></div>
+      <div class="text-right"><div class="text-2xl font-extrabold ${warna(xT)}">${pf(xT)}</div><div class="text-[11px] text-slate-500">terserap dari total pagu</div></div></div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">${[['Total Pagu', T.p], ['Realisasi', T.r], ['Sudah Cair', T.c], ['Sisa Anggaran', T.p - T.r]].map(k => `<div class="rounded-lg bg-slate-50 px-3 py-2"><div class="text-[10px] text-slate-500">${k[0]}</div><div class="font-bold text-sm">${rp(k[1])}</div></div>`).join('')}</div>
+    ${op ? `<div class="space-y-2 mt-4">${perSub(ls)}</div>` : ANG.map(unitBlok).join('')}</div>`;
+}
 function dash() {
   const aktif = S.rows.filter(r => r.tahap != 'kuitansi'), cair = S.rows.filter(r => r.tahap == 'kuitansi');
   const sum = a => a.reduce((x, r) => x + (+r.nilai || 0), 0), pct = S.rows.length ? Math.round(cair.length / S.rows.length * 100) : 0;
@@ -76,6 +120,7 @@ function dash() {
   ${card('Menunggu BAPHP', cnt('baphp'), 'Berkas', 'Tahap: <b class="text-slate-700">Pemeriksaan hasil pekerjaan</b>', 'bg-orange-50 text-orange-500')}
   ${card('Perlu Tanda Tangan BAST', cnt('bast'), 'Berkas', 'Serah terima hasil pekerjaan • e-sign', 'bg-sky-50 text-sky-600')}
   ${card('Kuitansi Cair', cair.length, 'Dokumen Selesai', 'Nilai cair: <b class="text-slate-700">' + rp(sum(cair)) + '</b> • Penyerapan: <b class="text-emerald-600">' + pct + '%</b>', 'bg-emerald-50 text-emerald-600')}</div>
+  ${serapanBox()}
   <div class="bg-white rounded-xl border border-slate-200 p-4 mb-4"><div class="flex justify-between items-center flex-wrap gap-2 mb-3"><h3 class="font-bold text-sm">Siklus Alur Dokumen Pengadaan Barang & Jasa <span class="ml-1 text-[10px] bg-slate-100 text-slate-500 rounded px-1.5 py-0.5 font-medium">Realtime Pipeline</span></h3>
   <div class="text-[11px] text-slate-500 flex gap-3"><span>● Selesai</span><span class="text-brand">● Tahap Berjalan</span><span class="text-slate-400">● Antrean</span></div></div>
   <div class="grid grid-cols-2 lg:grid-cols-6 gap-2.5">${PIPE.map((p, i) => `<div class="rounded-xl border border-${p[4]}-200 bg-${p[4]}-50/50 p-3 flex flex-col"><div class="flex justify-between items-center"><span class="w-5 h-5 rounded-full bg-${p[4]}-600 text-white text-[10px] font-bold grid place-items-center">${i + 1}</span><span class="text-[10px] font-semibold bg-white border border-${p[4]}-200 text-${p[4]}-700 rounded px-1.5">${cnt(p[0])} ${p[0] == 'kuitansi' ? 'selesai' : 'berkas'}</span></div><div class="font-extrabold mt-2">${p[1]}</div><div class="text-[11px] text-slate-500 leading-snug flex-1">${p[2]}</div><div class="mt-2 pt-2 border-t border-${p[4]}-100 text-[11px] font-semibold text-${p[4]}-700">${p[3]} →</div></div>`).join('')}</div></div>
@@ -625,7 +670,7 @@ function userView() {
     API.run.withSuccessHandler(r => { U = r; draw(); }).withFailureHandler(x => { U = []; notify(x.message); draw(); }).daftarUser(SESI.t);
     return '<div class="text-center py-20 text-slate-400">Memuat pengguna...</div>';
   }
-  return `<div class="flex justify-between items-center flex-wrap gap-2 mb-4"><div><h1 class="text-xl font-extrabold">Manajemen Pengguna</h1><p class="text-slate-500 text-xs">Kelola akun yang dapat masuk ke SiPerkasa. Menu ini hanya untuk administrator.</p></div><button onclick="frmUser()" class="bg-navy text-white rounded-lg px-3.5 py-2 text-xs font-semibold">+ Tambah Pengguna</button></div>
+  return `<div class="flex justify-between items-center flex-wrap gap-2 mb-4"><div><h1 class="text-xl font-extrabold">Manajemen Pengguna</h1><p class="text-slate-500 text-xs">Kelola akun yang dapat masuk ke SIAP-KERJA. Menu ini hanya untuk administrator.</p></div><button onclick="frmUser()" class="bg-navy text-white rounded-lg px-3.5 py-2 text-xs font-semibold">+ Tambah Pengguna</button></div>
   <div class="bg-white rounded-xl border border-slate-200 tw"><table class="w-full text-left"><thead class="text-[10px] uppercase tracking-wide text-slate-400"><tr><th class="p-3">Username / NIP</th><th class="p-3">Nama</th><th class="p-3">Jabatan</th><th class="p-3">Peran</th><th class="p-3 text-right">Aksi</th></tr></thead><tbody class="divide-y divide-slate-100">
   ${U.map((u, i) => `<tr><td class="p-3 font-semibold">${e(u.username)}</td><td class="p-3">${e(u.nama)}</td><td class="p-3">${e(u.jabatan)}</td><td class="p-3"><span class="border rounded-md px-2 py-1 text-[11px] font-semibold ${u.role == 'admin' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-slate-100 text-slate-600 border-slate-200'}">${e(ROLE_LBL[u.role] || 'Pengguna')}</span></td><td class="p-3 text-right"><button onclick="frmUser(${i})" class="border border-slate-300 rounded-lg px-2.5 py-1 text-xs">Ubah / Reset Sandi</button>${String(u.username).toLowerCase() == String(SESI.u).toLowerCase() ? '' : ` <button onclick="hpsUser(${i})" class="border border-slate-300 rounded-lg px-2.5 py-1 text-xs text-rose-600">Hapus</button>`}</td></tr>`).join('') || '<tr><td colspan="5" class="p-10 text-center text-slate-400">Belum ada pengguna.</td></tr>'}</tbody></table></div>`;
 }

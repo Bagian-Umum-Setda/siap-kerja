@@ -170,3 +170,16 @@ dialog.ask>div{padding:1.5rem;text-align:center}
 .dark #tst>.tst-ok{background:#0f2a22!important;color:#6ee7b7;border-color:#14532d!important}
 .dark #tst>.tst-err{background:#2a1218!important;color:#fda4af;border-color:#4c1d24!important}
 @media (prefers-reduced-motion:reduce){#md>.fixed,#md>.fixed>*,dialog.ask,.tst{animation:none!important}}
+/* ---- rincian serapan anggaran ---- */
+.srp summary{list-style:none;cursor:pointer}
+.srp summary::-webkit-details-marker{display:none}
+.srp summary .chev{transition:transform .2s}
+.srp[open] summary .chev{transform:rotate(90deg)}
+.srp summary:hover{background:#f8fafc}
+.dark .srp summary:hover{background:#1c2735}
+.srp table th{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;font-weight:600;padding:.4rem .5rem;text-align:left}
+.srp table td{padding:.45rem .5rem;border-top:1px solid #f1f5f9;vertical-align:middle}
+.dark .srp table td{border-color:#263445}
+
+/* kartu ringkasan Serapan Anggaran: 4 kolom di layar komputer */
+@media (min-width:768px){.md\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}
